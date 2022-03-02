@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request
 
+from WebApp.CamelotKeyConverter import CamelotKeyConverter
+
 app = Flask(__name__)
 
 
@@ -14,16 +16,19 @@ def camelot_page():
     return render_template('camelot.html')
 
 
-@app.route('/camelot_upload', methods=['GET', 'POST'])
+@app.route('/camelot', methods=['GET', 'POST'])
 def camelot_upload_file():
     if request.method == "POST":
         f = request.files['file']
         f.save(f.filename)
-        return 'file uploaded successfully'
+
+        converter = CamelotKeyConverter()
+        converted_xml = converter.convertToCamelotKeys()  # TODO: MAKE THIS FORMATTED PROPERLY OR MAKE IT A FILE TO DOWNLAOD
+
+        return render_template('converted_xml.html', xml=converted_xml)
 
 
 # Camelot keys
-# We need to be able to upload a file
 # Modify that file
 # present new file with the modifications
 
