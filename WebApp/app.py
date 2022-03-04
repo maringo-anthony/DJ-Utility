@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 
 from WebApp.CamelotKeyConverter import CamelotKeyConverter
 
@@ -23,14 +23,22 @@ def camelot_upload_file():
         f.save(f.filename)
 
         converter = CamelotKeyConverter()
-        converted_xml = converter.convertToCamelotKeys()  # TODO: MAKE THIS FORMATTED PROPERLY OR MAKE IT A FILE TO DOWNLAOD
+        converted_xml = converter.convertToCamelotKeys()
+        with open("rekordbox_out.xml", "w") as out_file:
+            out_file.write(converted_xml)
 
         return render_template('converted_xml.html', xml=converted_xml)
+
+
+@app.route('/download')
+def download_rekordbox_xml():
+    return send_file('rekordbox.xml', as_attachment=True)
 
 
 # Camelot keys
 # Modify that file
 # present new file with the modifications
+# TODO: clean up rekordbox.xml files automatically
 
 
 if __name__ == '__main__':
