@@ -33,7 +33,7 @@ class TestCamelotKeys:
         choose_file.send_keys(os.getcwd() + "/rekordbox.xml")
         submit.click()
 
-        assert "file uploaded successfully" in driver.page_source
+        assert "File uploaded successfully" in driver.page_source
 
     def test_camelot_key_conversion(self):
         converter = CamelotKeyConverter()
