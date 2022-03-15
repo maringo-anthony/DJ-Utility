@@ -62,6 +62,7 @@ def download_mp3():
 # TODO: clean up rekordbox.xml files automatically
 # TODO: clean up mp3 files automatically
 # TODO: add bulk mp3 processing
+# TODO: Process mp3 files to get meta data upon upload
 
 if __name__ == '__main__':
     app.run()
