@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template, request, send_file
 
 from WebApp.CamelotKeyConverter import CamelotKeyConverter
@@ -30,7 +32,7 @@ def camelot_upload_file():
         return render_template('converted_xml.html', xml=converted_xml)
 
 
-@app.route('/download')
+@app.route('/download_xml')
 def download_rekordbox_xml():
     return send_file('rekordbox.xml', as_attachment=True)
 
@@ -50,11 +52,16 @@ def process_mp3_upload_file():
         return render_template('processed_mp3.html')
 
 
-# Camelot keys
-# Modify that file
-# present new file with the modifications
-# TODO: clean up rekordbox.xml files automatically
+@app.route('/download_mp3')
+def download_mp3():
+    file_name = [_ for _ in os.listdir(os.getcwd()) if
+                 _.endswith(".mp3")].pop()  # Find any MP3 file and return it TODO: make this more robust
+    return send_file(file_name, as_attachment=True)
 
+
+# TODO: clean up rekordbox.xml files automatically
+# TODO: clean up mp3 files automatically
+# TODO: add bulk mp3 processing
 
 if __name__ == '__main__':
     app.run()
