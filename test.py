@@ -1,73 +1,63 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
+
 import pytest
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.utils import ChromeType
+
+from WebApp.CamelotKeyConverter import CamelotKeyConverter
 
 
-class TestWebsite:
-    # 1. Check browser configuration in browser_setup_and_teardown
-    # 2. Run 'Selenium Tests' configuration
-    # 3. Test report will be created in reports/ directory
+# TODO: TEST THE BACK BUTTON
+class TestCamelotKeys:
+    home_url = "http://localhost:5000/"
 
-    @pytest.fixture(autouse=True)
-    def browser_setup_and_teardown(self):
-        self.use_selenoid = False  # set to True to run tests with Selenoid
+    @pytest.fixture()
+    def test_setup(self):
+        global driver
+        driver = webdriver.Chrome(ChromeDriverManager().install())
+        driver.get(self.home_url)
+        yield driver
+        driver.quit()
 
-        if self.use_selenoid:
-            self.browser = webdriver.Remote(
-                command_executor='http://localhost:4444/wd/hub',
-                desired_capabilities={
-                    "browserName": "chrome",
-                    "browserSize": "1920x1080"
-                }
-            )
-        else:
-            self.browser = webdriver.Chrome(
-                executable_path=ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install())
+    def test_server_running(self, test_setup):
+        assert 'Hello, world!' == driver.title
 
-        self.browser.maximize_window()
-        self.browser.implicitly_wait(10)
-        self.browser.get("https://www.jetbrains.com/")
+    def test_file_upload(self, test_setup):  # TODO: DELETE THE FILE FROM THE DIRECTORY THEN UPLOAD IT
+        driver.get(self.home_url + '/camelot')
+        choose_file = driver.find_element_by_name('file')
+        submit = driver.find_element_by_xpath("//input[@type='submit']")
 
-        yield
+        choose_file.send_keys(os.getcwd() + "/rekordbox.xml")
+        submit.click()
 
-        self.browser.close()
-        self.browser.quit()
+        assert "file uploaded successfully" in driver.page_source
 
-    def test_tools_menu(self):
-        """this test checks presence of Tools menu item"""
-        tools_menu = self.browser.find_element_by_xpath(
-            "//div[contains(@class, 'menu-main__item') and text() = 'Tools']")
+    def test_camelot_key_conversion(self):
+        converter = CamelotKeyConverter()
 
-        actions = webdriver.ActionChains(self.browser)
-        actions.move_to_element(tools_menu)
-        actions.perform()
+        new_xml = converter.convertToCamelotKeys()
 
-        menu_popup = self.browser.find_element_by_class_name("menu-main__popup-wrapper")
-        assert menu_popup is not None
+        old_keys = list(converter.camelot_conversions.keys())
 
-    def test_navigation_to_all_tools(self):
-        """this test checks navigation by See All Tools button"""
-        see_all_tools_button = self.browser.find_element_by_css_selector("a.wt-button_mode_primary")
-        see_all_tools_button.click()
+        for key in old_keys:
+            assert "Tonality=\"" + key + "\"" not in new_xml
 
-        products_list = self.browser.find_element_by_class_name("products-list")
-        assert products_list is not None
-        assert self.browser.title == "All Developer Tools and Products by JetBrains"
+    def test_uploaded_file_key_change(self, test_setup):  # TODO: Update this test for the downloading file
+        driver.get(self.home_url + '/camelot')
+        choose_file = driver.find_element_by_name('file')
+        submit = driver.find_element_by_xpath("//input[@type='submit']")
 
-    def test_search(self):
-        """this test checks search from the main menu"""
-        search_button = self.browser.find_element_by_css_selector("[data-test=menu-main-icon-search]")
-        search_button.click()
+        choose_file.send_keys(os.getcwd() + "/rekordbox.xml")
+        submit.click()
 
-        search_field = self.browser.find_element_by_id("header-search")
-        search_field.send_keys("Selenium")
+        assert "rekordbox" in driver.page_source
 
-        submit_button = self.browser.find_element_by_xpath("//button[@type='submit' and text()='Search']")
-        submit_button.click()
+        converter = CamelotKeyConverter()
 
-        search_page_field = self.browser.find_element_by_class_name("js-search-input")
-        assert search_page_field.get_property("value") == "Selenium"
+        old_keys = list(converter.camelot_conversions.keys())
+
+        for key in old_keys:
+            assert "Tonality=\"" + key + "\"" not in driver.page_source
