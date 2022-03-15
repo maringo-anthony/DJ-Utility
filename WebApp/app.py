@@ -35,6 +35,21 @@ def download_rekordbox_xml():
     return send_file('rekordbox.xml', as_attachment=True)
 
 
+@app.route('/process_mp3')
+def process_mp3_page():
+    return render_template('process_mp3.html')
+
+
+@app.route('/process_mp3', methods=['GET', 'POST'])
+def process_mp3_upload_file():
+    if request.method == "POST":
+        f = request.files['file']
+        f.save(f.filename)
+
+        # TODO: CALL PROCESSING CODE HERE
+        return render_template('processed_mp3.html')
+
+
 # Camelot keys
 # Modify that file
 # present new file with the modifications
