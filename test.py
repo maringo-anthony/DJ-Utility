@@ -10,6 +10,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from WebApp.CamelotKeyConverter import CamelotKeyConverter
 
 
+# TODO: TEST THE BACK BUTTON
 class TestCamelotKeys:
     home_url = "http://localhost:5000/"
 
@@ -44,7 +45,7 @@ class TestCamelotKeys:
         for key in old_keys:
             assert "Tonality=\"" + key + "\"" not in new_xml
 
-    def test_uploaded_file_key_change(self, test_setup):  # TODO: MAKE SURE XML ACTUALLY SHOWS ON THE WEBSITE
+    def test_uploaded_file_key_change(self, test_setup):  # TODO: Update this test for the downloading file
         driver.get(self.home_url + '/camelot')
         choose_file = driver.find_element_by_name('file')
         submit = driver.find_element_by_xpath("//input[@type='submit']")
@@ -53,7 +54,6 @@ class TestCamelotKeys:
         submit.click()
 
         assert "rekordbox" in driver.page_source
-        print(driver.page_source)
 
         converter = CamelotKeyConverter()
 
