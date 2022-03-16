@@ -1,0 +1,28 @@
+#!/usr/local/bin/expect -f
+
+
+set force_conservative 1  ;# set to 1 to force conservative mode even if
+			  ;# script wasn't run conservatively originally
+if {$force_conservative} {
+	set send_slow {1 .1}
+	proc send {ignore arg} {
+		sleep .1
+		exp_send -s -- $arg
+	}
+}
+
+set timeout -1
+
+eval spawn ~/opt/anaconda3/bin/beet import -l ~/cleaned_up_music/BeetLog.txt [lrange $argv 0 end]
+
+match_max 100000
+
+expect {
+    "\kip, Use as-is, as Tracks, Group albums, Enter search, enter Id, aBort?" {exp_send "\r";exp_continue}
+
+    "selection*aBort?" {exp_send "\r";exp_continue}
+
+    "Apply*aBort?" {exp_send "A\r";exp_continue}
+
+    "\kip new, Keep all, Remove old, Merge all?" {exp_send "r\r";exp_continue}
+}

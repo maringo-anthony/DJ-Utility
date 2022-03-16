@@ -3,6 +3,7 @@ import os
 from flask import Flask, render_template, request, send_file
 
 from WebApp.CamelotKeyConverter import CamelotKeyConverter
+from WebApp.MP3_Processing import MP3Processor
 
 app = Flask(__name__)
 
@@ -49,6 +50,7 @@ def process_mp3_upload_file():
         f.save(f.filename)
 
         # TODO: CALL PROCESSING CODE HERE
+        MP3Processor.getSongMetaData(f.filename)
         return render_template('processed_mp3.html')
 
 
