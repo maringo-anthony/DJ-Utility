@@ -3,6 +3,8 @@
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 rekordbox.xml
+API_KEY.TXT
+
 
 # User-specific stuff
 .idea/**/workspace.xml

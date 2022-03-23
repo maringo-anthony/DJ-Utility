@@ -1,4 +1,5 @@
 # Anthony Maringo Alm4cu
+import errno
 import os
 
 
@@ -28,6 +29,10 @@ class CamelotKeyConverter:
         return xml
 
     def get_xml(self):
-        with open(self.REKORDBOX_XML, 'r') as f:
-            data = f.read()
+        # rekordbox.xml is not found
+        if not os.path.isfile(self.REKORDBOX_XML):
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), self.REKORDBOX_XML)
+        else:
+            with open(self.REKORDBOX_XML, 'r') as f:
+                data = f.read()
         return data
