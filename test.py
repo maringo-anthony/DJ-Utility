@@ -6,7 +6,7 @@ import os
 import pytest
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
-from WebApp.MP3_Processing import MP3Processor
+# from WebApp.MP3_Processing import MP3Processor
 
 from WebApp.CamelotKeyConverter import CamelotKeyConverter
 
@@ -53,7 +53,6 @@ class TestCamelotKeys:
 
         choose_file.send_keys(os.getcwd() + "/rekordbox.xml")
         submit.click()
-
         assert "rekordbox" in driver.page_source  # TODO: make this a better check
 
         converter = CamelotKeyConverter()
