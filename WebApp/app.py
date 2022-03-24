@@ -6,11 +6,6 @@ app = Flask(__name__)
 
 
 @app.route('/')
-@app.route('/home')
-def hello_page():  # put application's code here
-    return render_template('home.html')
-
-
 @app.route('/camelot')
 def camelot_page():
     return render_template('camelot.html')
@@ -33,9 +28,6 @@ def camelot_upload_file():
 @app.route('/download')
 def download_rekordbox_xml():
     return send_file('rekordbox.xml', as_attachment=True)
-
-
-
 
 
 if __name__ == '__main__':
