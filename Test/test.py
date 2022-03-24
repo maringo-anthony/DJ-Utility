@@ -60,16 +60,3 @@ class TestCamelotKeys:
 
         for key in old_keys:
             assert "Tonality=\"" + key + "\"" not in driver.page_source
-
-    def test_upload_mp3(self, test_setup):
-        driver.get(self.home_url + '/process_mp3')
-        choose_file = driver.find_element_by_name('file')
-        submit = driver.find_element_by_xpath("//input[@type='submit']")
-
-        mp3_file = "riptide.mp3"
-        choose_file.send_keys(os.getcwd() + '/' + mp3_file)
-        submit.click()
-
-        web_app_dir = 'WebApp/'
-        assert mp3_file in os.listdir(web_app_dir)
-        os.remove(web_app_dir + mp3_file)
