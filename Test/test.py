@@ -6,7 +6,6 @@ import os
 import pytest
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
-# from WebApp.MP3_Processing import MP3Processor
 
 from WebApp.CamelotKeyConverter import CamelotKeyConverter
 
@@ -74,11 +73,3 @@ class TestCamelotKeys:
         web_app_dir = 'WebApp/'
         assert mp3_file in os.listdir(web_app_dir)
         os.remove(web_app_dir + mp3_file)
-
-    def test_song_finger_printing(self):
-
-        mp3_file = os.path.join(os.getcwd(), 'riptide.mp3')
-        print('THE meta data is: ')
-
-        print(MP3Processor.newAttemptAtMetaData(mp3_file))
-
