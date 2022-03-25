@@ -56,8 +56,15 @@ def download_mp3():
     if request.method == "POST":
         song_name = request.form['song-name']
 
+        if request.form['remix_radio']:
+            remix = request.form['remix_radio']
+        else:
+            remix = False
+
         downloader = Youtube_Downloader()
-        song_file_name = downloader.download_song(song_name)
+
+        # TODO: Make the file that is actually downloaded connected to the link that says click to download your song
+        song_file = downloader.download_song(song_name, remix)
         return render_template('song_download.html')
 
 
