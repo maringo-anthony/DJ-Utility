@@ -4,7 +4,7 @@
 
 rekordbox.xml
 API_KEY.TXT
-
+*.mp3
 
 # User-specific stuff
 .idea/**/workspace.xml
