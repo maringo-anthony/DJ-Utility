@@ -29,7 +29,7 @@ def camelot_upload_file():
         with open("rekordbox_out.xml", "w") as out_file:
             out_file.write(converted_xml)
 
-        if request.form['compressed_radio']:
+        if 'compressed_radio' in request.form.keys() and request.form['compressed_radio']:
             with ZipFile("rekordbox.zip", "w") as zipObj:
                 zipObj.write("rekordbox_out.xml")
 
@@ -56,7 +56,7 @@ def download_mp3():
     if request.method == "POST":
         song_name = request.form['song-name']
 
-        if request.form['remix_radio']:
+        if 'remix_radio' in request.form.keys():
             remix = request.form['remix_radio']
         else:
             remix = False
