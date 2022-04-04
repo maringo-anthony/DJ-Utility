@@ -1,11 +1,12 @@
 from zipfile import ZipFile
 
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, session
 
 from WebApp.CamelotKeyConverter import CamelotKeyConverter
 from WebApp.YoutubeDownloader import Youtube_Downloader
 
 app = Flask(__name__)
+app.secret_key = 'secret string'
 
 
 @app.route('/')
@@ -64,14 +65,15 @@ def download_mp3():
         downloader = Youtube_Downloader()
 
         # TODO: Make the file that is actually downloaded connected to the link that says click to download your song
-        song_file = downloader.download_song(song_name, remix)
+        session['song_file'] = downloader.download_song(song_name, remix)
+
         return render_template('song_download.html')
 
 
 @app.route('/song_download')
 def download_song():
     # TODO: Find song that was downloaded then send it
-    return send_file('Dance_With_Me_Tonight.mp3', as_attachment=True)
+    return send_file(session['song_file'], as_attachment=True)
 
 
 if __name__ == '__main__':
