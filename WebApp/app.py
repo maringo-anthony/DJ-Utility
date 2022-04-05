@@ -9,6 +9,7 @@ app = Flask(__name__)
 app.secret_key = 'secret string'
 
 
+
 @app.route('/')
 @app.route('/camelot')
 def camelot_page():
