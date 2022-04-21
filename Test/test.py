@@ -5,6 +5,7 @@ import os
 
 import pytest
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
 from WebApp.CamelotKeyConverter import CamelotKeyConverter
@@ -26,12 +27,7 @@ class TestCamelotKeys:
         assert 'Hello, world!' == driver.title
 
     def test_file_upload(self, test_setup):  # TODO: DELETE THE FILE FROM THE DIRECTORY THEN UPLOAD IT
-        driver.get(self.home_url + '/camelot')
-        choose_file = driver.find_element_by_name('file')
-        submit = driver.find_element_by_xpath("//input[@type='submit']")
-
-        choose_file.send_keys(os.getcwd() + "/rekordbox.xml")
-        submit.click()
+        self.upload_rekordboxxml()
 
         assert "File uploaded successfully" in driver.page_source
 
@@ -46,12 +42,7 @@ class TestCamelotKeys:
             assert "Tonality=\"" + key + "\"" not in new_xml
 
     def test_uploaded_file_key_change(self, test_setup):  # TODO: Update this test for the downloading file
-        driver.get(self.home_url + '/camelot')
-        choose_file = driver.find_element_by_name('file')
-        submit = driver.find_element_by_xpath("//input[@type='submit']")
-
-        choose_file.send_keys(os.getcwd() + "/rekordbox.xml")
-        submit.click()
+        self.upload_rekordboxxml()
         assert "rekordbox" in driver.page_source  # TODO: make this a better check
 
         converter = CamelotKeyConverter()
@@ -60,3 +51,10 @@ class TestCamelotKeys:
 
         for key in old_keys:
             assert "Tonality=\"" + key + "\"" not in driver.page_source
+
+    def upload_rekordboxxml(self):
+        driver.get(self.home_url + '/camelot')
+        choose_file = driver.find_element(by=By.NAME, value='file')
+        submit = driver.find_element(by=By.XPATH, value="//input[@type='submit']")
+        choose_file.send_keys(os.getcwd() + "/rekordbox.xml")
+        submit.click()
