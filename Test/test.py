@@ -58,3 +58,46 @@ class TestCamelotKeys:
         submit = driver.find_element(by=By.XPATH, value="//input[@type='submit']")
         choose_file.send_keys(os.getcwd() + "/rekordbox.xml")
         submit.click()
+
+
+class TestCamelotHomePage:
+    home_url = "http://127.0.0.1:5000/"
+
+    @pytest.fixture()
+    def test_setup(self):
+        global driver
+        driver = webdriver.Chrome(ChromeDriverManager().install())
+        driver.get(self.home_url)
+        yield driver
+        # driver.quit()
+
+    def test_choose_file_clicked_submit_clicked_compression_yes_clicked(self, test_setup): # TODO: CHECK IF YOU CAN DOWNLOAD COMPRESSED FILE
+        self.execute_actions(True, True, "Yes")
+        assert "File uploaded successfully" in driver.page_source
+
+    def test_choose_file_clicked_submit_clicked_compression_no_clicked(self, test_setup):
+        self.execute_actions(True, True, "No")
+
+    def test_choose_file_clicked_submit_clicked_compression_none_clicked(self, test_setup):
+        self.execute_actions(True, True, None)
+
+    def test_choose_file_clicked_submit_NOT_clicked_compression_yes_clicked(self, test_setup):
+        self.execute_actions(True, False, "Yes")
+
+    def test_choose_file_NOT_clicked_submit_clicked_compression_yes_clicked(self, test_setup):
+        self.execute_actions(False, True, "Yes")
+
+    def execute_actions(self, choose_file, submit, compression):
+        driver.get(self.home_url)
+
+        if choose_file:
+            choose_file_button = driver.find_element(by=By.NAME, value='file')
+            choose_file_button.send_keys(os.getcwd() + "/rekordbox.xml")
+
+        if compression == "Yes":
+            driver.find_element(by=By.ID, value='yes').click()
+        elif compression == "No":
+            driver.find_element(by=By.ID, value='no').click()
+
+        if submit:
+            driver.find_element(by=By.XPATH, value="//input[@type='submit']").click()
