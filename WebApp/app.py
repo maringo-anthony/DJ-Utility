@@ -58,6 +58,9 @@ def download_mp3():
     if request.method == "POST":
         song_name = request.form['song-name']
 
+        if not song_name:
+            return render_template('youtube_search.html')
+
         do_remix = 'remix_radio.yes' in request.form.keys() and request.form['remix_radio.yes']
 
         downloader = Youtube_Downloader()
