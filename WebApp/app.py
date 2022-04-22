@@ -68,7 +68,7 @@ def download_mp3():
         # TODO: Make the file that is actually downloaded connected to the link that says click to download your song
         session['song_file'] = downloader.download_song(song_name, remix)
 
-        return render_template('song_download.html')
+        return render_template('song_download.html', show_remix=remix)
 
 
 @app.route('/song_download')
