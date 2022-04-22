@@ -69,23 +69,27 @@ class TestCamelotHomePage:
         driver = webdriver.Chrome(ChromeDriverManager().install())
         driver.get(self.home_url)
         yield driver
-        # driver.quit()
+        driver.quit()
 
-    def test_choose_file_clicked_submit_clicked_compression_yes_clicked(self, test_setup): # TODO: CHECK IF YOU CAN DOWNLOAD COMPRESSED FILE
+    def test_choose_file_clicked_submit_clicked_compression_yes_clicked(self, test_setup):
         self.execute_actions(True, True, "Yes")
-        assert "File uploaded successfully" in driver.page_source
+        assert "Click to download converted and compressed rekordbox.zip" in driver.page_source
 
     def test_choose_file_clicked_submit_clicked_compression_no_clicked(self, test_setup):
         self.execute_actions(True, True, "No")
+        assert "File uploaded successfully" in driver.page_source and "Click to download converted and compressed rekordbox.zip" not in driver.page_source
 
     def test_choose_file_clicked_submit_clicked_compression_none_clicked(self, test_setup):
         self.execute_actions(True, True, None)
+        assert "File uploaded successfully" in driver.page_source and "Click to download converted and compressed rekordbox.zip" not in driver.page_source
 
     def test_choose_file_clicked_submit_NOT_clicked_compression_yes_clicked(self, test_setup):
         self.execute_actions(True, False, "Yes")
+        assert driver.current_url == self.home_url
 
     def test_choose_file_NOT_clicked_submit_clicked_compression_yes_clicked(self, test_setup):
         self.execute_actions(False, True, "Yes")
+        assert driver.current_url == self.home_url
 
     def execute_actions(self, choose_file, submit, compression):
         driver.get(self.home_url)
