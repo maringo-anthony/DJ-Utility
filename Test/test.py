@@ -182,25 +182,30 @@ class TestYoutubeSearchPage:
 
         # Tear down
         download_path = str(Path.home() / "Downloads")
-        files_to_delete = [x for x in os.listdir(download_path) if "rekordbox" in x]
+        files_to_delete = [x for x in os.listdir(download_path) if ".mp3" in x]
         print(f'need to delete: {files_to_delete}')
         for file in files_to_delete:
             os.remove(str(download_path + "/" + file))
 
     def test_not_empty_submit_button_clicked_yes_look_for_remix(self, test_setup):
-        pass
+        self.execute_actions("Riptide", True, "Yes")
+        assert "Click to download your song!" in driver.page_source and "Click to download remixed version of your song!" in driver.page_source
 
     def test_not_empty_submit_button_clicked_none_look_for_remix(self, test_setup):
-        pass
+        self.execute_actions("Riptide", True, None)
+        assert "Click to download your song!" in driver.page_source and "Click to download remixed version of your song!" not in driver.page_source
 
     def test_not_empty_submit_button_clicked_no_look_for_remix(self, test_setup):
-        pass
+        self.execute_actions("Riptide", True, "No")
+        assert "Click to download your song!" in driver.page_source and "Click to download remixed version of your song!" not in driver.page_source
 
     def test_not_empty_submit_button_NOT_clicked_yes_look_for_remix(self, test_setup):
-        pass
+        self.execute_actions("Riptide", False, "Yes")
+        assert driver.current_url == self.url
 
     def test_empty_submit_button_clicked_yes_look_for_remix(self, test_setup):
-        pass
+        self.execute_actions("", True, "Yes")
+        assert driver.current_url == self.url
 
     def execute_actions(self, textbox_content, submit, remix):
         driver.get(self.url)
@@ -210,9 +215,9 @@ class TestYoutubeSearchPage:
             textbox.send_keys(textbox_content)
 
         if remix == "Yes":
-            driver.find_element(by=By.ID, value='yes').click()
+            driver.find_element(by=By.NAME, value='remix_radio.yes').click()
         elif remix == "No":
-            driver.find_element(by=By.ID, value='no').click()
+            driver.find_element(by=By.NAME, value='remix_radio').click()
 
         if submit:
             driver.find_element(by=By.XPATH, value="//input[@type='submit']").click()
