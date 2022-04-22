@@ -9,7 +9,6 @@ app = Flask(__name__)
 app.secret_key = 'secret string'
 
 
-
 @app.route('/')
 @app.route('/camelot')
 def camelot_page():
@@ -31,11 +30,12 @@ def camelot_upload_file():
         with open("rekordbox_out.xml", "w") as out_file:
             out_file.write(converted_xml)
 
-        if 'compressed_radio' in request.form.keys() and request.form['compressed_radio']:
+        do_compression = 'compressed_radio.yes' in request.form.keys() and request.form['compressed_radio.yes']
+        if do_compression:
             with ZipFile("rekordbox.zip", "w") as zipObj:
                 zipObj.write("rekordbox_out.xml")
 
-        return render_template('converted_xml.html', xml=converted_xml)
+        return render_template('converted_xml.html', show_compressed=do_compression)
 
 
 @app.route('/download_xml')
