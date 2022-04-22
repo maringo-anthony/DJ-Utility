@@ -9,7 +9,7 @@ class Youtube_Downloader:
     def search_song(self, song_name, remix):
         video_to_download = None
 
-        if remix: # TODO: Figure out why this isnt giving the videos with most views like i would expect
+        if remix:  # TODO: Figure out why this isnt giving the videos with most views like i would expect
             search_results = Search(str(song_name + " remix")).results[:20]
             search_results = list(filter(lambda x: "remix" in x.title, search_results))
             search_results.sort(key=lambda x: x.views, reverse=True)
@@ -42,7 +42,13 @@ class Youtube_Downloader:
 
         # Save the file
         base, ext = os.path.splitext(out_file)
-        new_file = base + '.mp3'
+
+        if remix:
+            new_file = base + '-remix.mp3'
+        else:
+            new_file = base + '.mp3'
+        print("NEW FILE NAME: " + new_file)
+
         os.rename(out_file, new_file)
 
         return new_file
