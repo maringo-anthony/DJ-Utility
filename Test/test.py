@@ -133,24 +133,17 @@ class TestCamelotDownloadPage:
         for file in files_to_delete:
             os.remove(str(download_path + "/" + file))
 
-    def wait_for_download(self, file_name):
-        seconds = 0
-        while seconds <= 2:
-            if file_name not in os.listdir(str(Path.home() / "Downloads")):
-                time.sleep(.5)
-            seconds += .5
-
     def test_download_xml(self, test_setup):
         driver.find_element(By.PARTIAL_LINK_TEXT, "Click to download converted rekordbox.xml").click()
         file_name = "rekordbox.xml"
-        self.wait_for_download(file_name)
+        wait_for_download(file_name)
 
         assert file_name in os.listdir(str(Path.home() / "Downloads"))
 
     def test_download_compressed_xml(self, test_setup):
         driver.find_element(By.PARTIAL_LINK_TEXT, "Click to download converted and compressed rekordbox.zip").click()
         file_name = "rekordbox.zip"
-        self.wait_for_download(file_name)
+        wait_for_download(file_name)
 
         assert file_name in os.listdir(str(Path.home() / "Downloads"))
 
@@ -159,13 +152,21 @@ class TestCamelotDownloadPage:
         driver.find_element(By.PARTIAL_LINK_TEXT, "Click to download converted and compressed rekordbox.zip").click()
 
         file1_name = "rekordbox.xml"
-        self.wait_for_download(file1_name)
+        wait_for_download(file1_name)
 
         file2_name = "rekordbox.zip"
-        self.wait_for_download(file2_name)
+        wait_for_download(file2_name)
 
         assert file1_name in os.listdir(str(Path.home() / "Downloads")) and file2_name in os.listdir(
             str(Path.home() / "Downloads"))
+
+
+def wait_for_download(file_name):
+    seconds = 0
+    while seconds <= 2:
+        if file_name not in os.listdir(str(Path.home() / "Downloads")):
+            time.sleep(.5)
+        seconds += .5
 
 
 class TestYoutubeSearchPage:
@@ -179,13 +180,6 @@ class TestYoutubeSearchPage:
 
         yield driver
         driver.quit()
-
-        # Tear down
-        download_path = str(Path.home() / "Downloads")
-        files_to_delete = [x for x in os.listdir(download_path) if ".mp3" in x]
-        print(f'need to delete: {files_to_delete}')
-        for file in files_to_delete:
-            os.remove(str(download_path + "/" + file))
 
     def test_not_empty_submit_button_clicked_yes_look_for_remix(self, test_setup):
         self.execute_actions("Riptide", True, "Yes")
@@ -221,3 +215,78 @@ class TestYoutubeSearchPage:
 
         if submit:
             driver.find_element(by=By.XPATH, value="//input[@type='submit']").click()
+
+
+class TestYoutubeDownloadPage:
+    url = "http://localhost:5000/youtube_search"
+    song_name = "Riptide"
+
+    @pytest.fixture()
+    def test_setup(self):
+        global driver
+        driver = webdriver.Chrome(ChromeDriverManager().install())
+        driver.get(self.url)
+
+        # Search for youtube video
+        textbox = driver.find_element(By.NAME, "song-name")
+        textbox.send_keys(self.song_name)
+        driver.find_element(by=By.NAME, value='remix_radio.yes').click()
+        driver.find_element(by=By.XPATH, value="//input[@type='submit']").click()
+
+        yield driver
+        driver.quit()
+
+        # Tear down
+        download_path = str(Path.home() / "Downloads")
+        files_to_delete = [x for x in os.listdir(download_path) if self.song_name in x]
+        print(f'need to delete: {files_to_delete}')
+        for file in files_to_delete:
+            os.remove(str(download_path + "/" + file))
+
+    def test_normal_version_download_remix_download(self, test_setup):
+        driver.find_element(By.PARTIAL_LINK_TEXT, "Click to download your song!").click()
+        driver.find_element(By.PARTIAL_LINK_TEXT, "Click to download remixed version of your song!").click()
+        wait_for_download(self.song_name)
+        wait_for_download(self.song_name + "-remix")
+
+        original_downloaded = False
+        remix_downloaded = False
+
+        # Look for the downloaded files
+        for file in os.listdir(str(Path.home() / "Downloads")):
+            if self.song_name in file and "remix" not in file:
+                original_downloaded = True
+            if self.song_name in file and "remix" in file:
+                remix_downloaded = True
+            if original_downloaded and remix_downloaded:
+                break
+
+        assert original_downloaded and remix_downloaded
+
+    def test_normal_version_download_remix_NOT_download(self, test_setup):
+        driver.find_element(By.PARTIAL_LINK_TEXT, "Click to download your song!").click()
+        wait_for_download(self.song_name)
+
+        original_downloaded = False
+
+        # Look for the downloaded files
+        for file in os.listdir(str(Path.home() / "Downloads")):
+            if self.song_name in file:
+                original_downloaded = True
+                break
+
+        assert original_downloaded
+
+    def test_normal_version_NOT_downloaded_remix_download(self, test_setup):
+        driver.find_element(By.PARTIAL_LINK_TEXT, "Click to download remixed version of your song!").click()
+        wait_for_download(self.song_name + "-remix")
+
+        remix_downloaded = False
+
+        # Look for the downloaded files
+        for file in os.listdir(str(Path.home() / "Downloads")):
+            if self.song_name in file and "-remix" in file:
+                remix_downloaded = True
+                break
+
+        assert remix_downloaded
