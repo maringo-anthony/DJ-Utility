@@ -27,7 +27,7 @@ class TestCamelotKeys:
     def test_server_running(self, test_setup):
         assert 'Hello, world!' == driver.title
 
-    def test_file_upload(self, test_setup):  # TODO: DELETE THE FILE FROM THE DIRECTORY THEN UPLOAD IT
+    def test_file_upload(self, test_setup):
         self.upload_rekordboxxml()
 
         assert "File uploaded successfully" in driver.page_source
@@ -42,9 +42,9 @@ class TestCamelotKeys:
         for key in old_keys:
             assert "Tonality=\"" + key + "\"" not in new_xml
 
-    def test_uploaded_file_key_change(self, test_setup):  # TODO: Update this test for the downloading file
+    def test_uploaded_file_key_change(self, test_setup):
         self.upload_rekordboxxml()
-        assert "rekordbox" in driver.page_source  # TODO: make this a better check
+        assert "rekordbox" in driver.page_source
 
         converter = CamelotKeyConverter()
 
@@ -290,3 +290,30 @@ class TestYoutubeDownloadPage:
                 break
 
         assert remix_downloaded
+
+
+class TestNavigationBar:
+    home_url = "http://localhost:5000/camelot"
+
+    @pytest.fixture()
+    def test_setup(self):
+        global driver
+        driver = webdriver.Chrome(ChromeDriverManager().install())
+        driver.get(self.home_url)
+        yield driver
+        driver.quit()
+
+    def test_camelot_page_and_youtube_search_page(self, test_setup):
+        driver.find_element(By.PARTIAL_LINK_TEXT, "Camelot Keys").click()
+        driver.find_element(By.PARTIAL_LINK_TEXT, "Youtube Search").click()
+
+        assert "Enter the song you would like to download" in driver.page_source
+
+    def test_camelot_page(self, test_setup):
+        driver.find_element(By.PARTIAL_LINK_TEXT, "Camelot Keys").click()
+        assert "Upload your rekordbox.xml to covert keys to camelot keys!" in driver.page_source
+
+    def test_youtube_search(self, test_setup):
+        driver.find_element(By.PARTIAL_LINK_TEXT, "Youtube Search").click()
+
+        assert "Enter the song you would like to download" in driver.page_source
