@@ -13,7 +13,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from WebApp.CamelotKeyConverter import CamelotKeyConverter
 
 
-# TODO: TEST THE BACK BUTTON
 class TestCamelotKeys:
     home_url = "http://localhost:5000/"
 
@@ -167,3 +166,53 @@ class TestCamelotDownloadPage:
 
         assert file1_name in os.listdir(str(Path.home() / "Downloads")) and file2_name in os.listdir(
             str(Path.home() / "Downloads"))
+
+
+class TestYoutubeSearchPage:
+    url = "http://localhost:5000/youtube_search"
+
+    @pytest.fixture()
+    def test_setup(self):
+        global driver
+        driver = webdriver.Chrome(ChromeDriverManager().install())
+        driver.get(self.url)
+
+        yield driver
+        driver.quit()
+
+        # Tear down
+        download_path = str(Path.home() / "Downloads")
+        files_to_delete = [x for x in os.listdir(download_path) if "rekordbox" in x]
+        print(f'need to delete: {files_to_delete}')
+        for file in files_to_delete:
+            os.remove(str(download_path + "/" + file))
+
+    def test_not_empty_submit_button_clicked_yes_look_for_remix(self, test_setup):
+        pass
+
+    def test_not_empty_submit_button_clicked_none_look_for_remix(self, test_setup):
+        pass
+
+    def test_not_empty_submit_button_clicked_no_look_for_remix(self, test_setup):
+        pass
+
+    def test_not_empty_submit_button_NOT_clicked_yes_look_for_remix(self, test_setup):
+        pass
+
+    def test_empty_submit_button_clicked_yes_look_for_remix(self, test_setup):
+        pass
+
+    def execute_actions(self, textbox_content, submit, remix):
+        driver.get(self.url)
+
+        if textbox_content:
+            textbox = driver.find_element(By.NAME, "song-name")
+            textbox.send_keys(textbox_content)
+
+        if remix == "Yes":
+            driver.find_element(by=By.ID, value='yes').click()
+        elif remix == "No":
+            driver.find_element(by=By.ID, value='no').click()
+
+        if submit:
+            driver.find_element(by=By.XPATH, value="//input[@type='submit']").click()
