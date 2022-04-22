@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+import time
+from pathlib import Path
 
 import pytest
 from selenium import webdriver
@@ -61,7 +63,7 @@ class TestCamelotKeys:
 
 
 class TestCamelotHomePage:
-    home_url = "http://127.0.0.1:5000/"
+    home_url = "http://localhost:5000/camelot"
 
     @pytest.fixture()
     def test_setup(self):
@@ -105,3 +107,63 @@ class TestCamelotHomePage:
 
         if submit:
             driver.find_element(by=By.XPATH, value="//input[@type='submit']").click()
+
+
+class TestCamelotDownloadPage:
+    home_url = "http://localhost:5000/"
+
+    @pytest.fixture()
+    def test_setup(self):
+        global driver
+        driver = webdriver.Chrome(ChromeDriverManager().install())
+        driver.get(self.home_url)
+
+        # Upload rekordbox.xml
+        choose_file = driver.find_element(by=By.NAME, value='file')
+        submit = driver.find_element(by=By.XPATH, value="//input[@type='submit']")
+        choose_file.send_keys(os.getcwd() + "/rekordbox.xml")
+        driver.find_element(by=By.ID, value='yes').click()
+        submit.click()
+        yield driver
+        driver.quit()
+
+        # Tear down
+        download_path = str(Path.home() / "Downloads")
+        files_to_delete = [x for x in os.listdir(download_path) if "rekordbox" in x]
+        print(f'need to delete: {files_to_delete}')
+        for file in files_to_delete:
+            os.remove(str(download_path + "/" + file))
+
+    def wait_for_download(self, file_name):
+        seconds = 0
+        while seconds <= 2:
+            if file_name not in os.listdir(str(Path.home() / "Downloads")):
+                time.sleep(.5)
+            seconds += .5
+
+    def test_download_xml(self, test_setup):
+        driver.find_element(By.PARTIAL_LINK_TEXT, "Click to download converted rekordbox.xml").click()
+        file_name = "rekordbox.xml"
+        self.wait_for_download(file_name)
+
+        assert file_name in os.listdir(str(Path.home() / "Downloads"))
+
+    def test_download_compressed_xml(self, test_setup):
+        driver.find_element(By.PARTIAL_LINK_TEXT, "Click to download converted and compressed rekordbox.zip").click()
+        file_name = "rekordbox.zip"
+        self.wait_for_download(file_name)
+
+        assert file_name in os.listdir(str(Path.home() / "Downloads"))
+
+    def test_download_xml_and_compressed_xml(self, test_setup):
+        driver.find_element(By.PARTIAL_LINK_TEXT, "Click to download converted rekordbox.xml").click()
+        driver.find_element(By.PARTIAL_LINK_TEXT, "Click to download converted and compressed rekordbox.zip").click()
+
+        file1_name = "rekordbox.xml"
+        self.wait_for_download(file1_name)
+
+        file2_name = "rekordbox.zip"
+        self.wait_for_download(file2_name)
+
+        assert file1_name in os.listdir(str(Path.home() / "Downloads")) and file2_name in os.listdir(
+            str(Path.home() / "Downloads"))
