@@ -330,3 +330,6 @@ class TestHomeMutations:
 
     def test_file_upload_inverted_if_mutant(self, test_setup):
         assert "File uploaded successfully" in driver.page_source
+
+    def test_file_compression_inverted_if_mutatnt(self, test_setup):
+        assert "Click to download converted and compressed rekordbox.zip" in driver.page_source
