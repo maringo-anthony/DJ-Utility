@@ -332,4 +332,5 @@ class TestHomeMutations:
         assert "File uploaded successfully" in driver.page_source
 
     def test_file_compression_inverted_if_mutatnt(self, test_setup):
+        driver.find_element(By.PARTIAL_LINK_TEXT, "Click to download converted and compressed rekordbox.zip").click()
         assert "Click to download converted and compressed rekordbox.zip" in driver.page_source
