@@ -13,6 +13,23 @@ from webdriver_manager.chrome import ChromeDriverManager
 from WebApp.CamelotKeyConverter import CamelotKeyConverter
 
 
+def upload_rekordbox_xml(driver):
+    # Upload rekordbox.xml
+    choose_file = driver.find_element(by=By.NAME, value='file')
+    submit = driver.find_element(by=By.XPATH, value="//input[@type='submit']")
+    choose_file.send_keys(os.getcwd() + "/rekordbox.xml")
+    driver.find_element(by=By.ID, value='yes').click()
+    submit.click()
+
+
+def wait_for_download(file_name):
+    seconds = 0
+    while seconds <= 2:
+        if file_name not in os.listdir(str(Path.home() / "Downloads")):
+            time.sleep(.5)
+        seconds += .5
+
+
 class TestCamelotKeys:
     home_url = "http://localhost:5000/"
 
@@ -28,7 +45,7 @@ class TestCamelotKeys:
         assert 'Hello, world!' == driver.title
 
     def test_file_upload(self, test_setup):
-        self.upload_rekordboxxml()
+        upload_rekordbox_xml(driver)
 
         assert "File uploaded successfully" in driver.page_source
 
@@ -43,7 +60,7 @@ class TestCamelotKeys:
             assert "Tonality=\"" + key + "\"" not in new_xml
 
     def test_uploaded_file_key_change(self, test_setup):
-        self.upload_rekordboxxml()
+        upload_rekordbox_xml(driver)
         assert "rekordbox" in driver.page_source
 
         converter = CamelotKeyConverter()
@@ -52,13 +69,6 @@ class TestCamelotKeys:
 
         for key in old_keys:
             assert "Tonality=\"" + key + "\"" not in driver.page_source
-
-    def upload_rekordboxxml(self):
-        driver.get(self.home_url + '/camelot')
-        choose_file = driver.find_element(by=By.NAME, value='file')
-        submit = driver.find_element(by=By.XPATH, value="//input[@type='submit']")
-        choose_file.send_keys(os.getcwd() + "/rekordbox.xml")
-        submit.click()
 
 
 class TestCamelotHomePage:
@@ -117,12 +127,7 @@ class TestCamelotDownloadPage:
         driver = webdriver.Chrome(ChromeDriverManager().install())
         driver.get(self.home_url)
 
-        # Upload rekordbox.xml
-        choose_file = driver.find_element(by=By.NAME, value='file')
-        submit = driver.find_element(by=By.XPATH, value="//input[@type='submit']")
-        choose_file.send_keys(os.getcwd() + "/rekordbox.xml")
-        driver.find_element(by=By.ID, value='yes').click()
-        submit.click()
+        upload_rekordbox_xml(driver)
         yield driver
         driver.quit()
 
@@ -159,14 +164,6 @@ class TestCamelotDownloadPage:
 
         assert file1_name in os.listdir(str(Path.home() / "Downloads")) and file2_name in os.listdir(
             str(Path.home() / "Downloads"))
-
-
-def wait_for_download(file_name):
-    seconds = 0
-    while seconds <= 2:
-        if file_name not in os.listdir(str(Path.home() / "Downloads")):
-            time.sleep(.5)
-        seconds += .5
 
 
 class TestYoutubeSearchPage:
@@ -317,3 +314,19 @@ class TestNavigationBar:
         driver.find_element(By.PARTIAL_LINK_TEXT, "Youtube Search").click()
 
         assert "Enter the song you would like to download" in driver.page_source
+
+
+class TestHomeMutations:
+    home_url = "http://localhost:5000/camelot"
+
+    @pytest.fixture()
+    def test_setup(self):
+        global driver
+        driver = webdriver.Chrome(ChromeDriverManager().install())
+        driver.get(self.home_url)
+        upload_rekordbox_xml(driver)
+        yield driver
+        driver.quit()
+
+    def test_file_upload_inverted_if_mutant(self, test_setup):
+        assert "File uploaded successfully" in driver.page_source
